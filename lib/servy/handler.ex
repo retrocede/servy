@@ -5,6 +5,7 @@ defmodule Servy.Handler do
         |> rewrite_path
         |> log
         |> route
+        |> emojify
         |> track
         |> format_response
     end
@@ -61,6 +62,16 @@ defmodule Servy.Handler do
         %{ conv | status: 404, resp_body: "No #{ path } here!"}
     end
 
+    # Emojify: Add emojis to worthy responses
+    def emojify(%{ status: 200 } = conv) do
+        emoji_bod = String.duplicate(" ☜(⌒▽⌒)☞ ", 3) <> "\n"
+            <> conv.resp_body <> "\n"
+            <> String.duplicate(" (｡◕‿◕｡) ", 3)
+        %{ conv | resp_body: emoji_bod}
+    end
+    # catch all, not worthy of emoji splendor
+    def emojify(conv), do: conv
+
     # Track: Log error routes
     def track(%{ status: 404, path: path } = conv) do
         IO.puts "Warning #{ path } is on the loose!"
@@ -69,7 +80,7 @@ defmodule Servy.Handler do
     # catch all, tracking not needed
     def track(conv), do: conv
 
-    # Format HTTP Resposne
+    # Format HTTP Response
     def format_response(conv) do
         # Use the values in the map to create an HTTP response string:
         """
