@@ -25,12 +25,23 @@ defmodule Servy.Handler do
     #
 
     # wildthings
-    def route(%{ method: "GET", path: "/wildthings" } = conv), do: %{ conv | status: 200, resp_body: "Bears, Lions, Tigers"}
+    def route(%{ method: "GET", path: "/wildthings" } = conv) do
+        %{ conv | status: 200, resp_body: "Bears, Lions, Tigers"}
+    end
     # bears
-    def route(%{ method: "GET", path: "/bears" } = conv), do: %{ conv | status: 200, resp_body: "Teddy, Smokey, Paddington"}
-    def route(%{ method: "GET", path: "/bears/" <> id } = conv), do: %{ conv | status: 200, resp_body: "Bear #{ id }" }
+    def route(%{ method: "GET", path: "/bears" } = conv) do
+        %{ conv | status: 200, resp_body: "Teddy, Smokey, Paddington"}
+    end
+    def route(%{ method: "GET", path: "/bears/" <> id } = conv) do
+        %{ conv | status: 200, resp_body: "Bear #{ id }" }
+    end
+    def route(%{ method: "DELETE", path: "/bears/" <> _id } = conv) do
+        %{ conv | status: 403, resp_body: "Deleting a bear is forbidden!" }
+    end
     # catch all route
-    def route(%{ method: _method, path: path } = conv), do: %{ conv | status: 404, resp_body: "No #{ path } here!"}
+    def route(%{ method: _method, path: path } = conv) do
+        %{ conv | status: 404, resp_body: "No #{ path } here!"}
+    end
 
     def format_response(conv) do
         # Use the values in the map to create an HTTP response string:
@@ -47,6 +58,7 @@ defmodule Servy.Handler do
         %{
             200 => "OK",
             201 => "Created",
+            204 => "No Content",
             401 => "Unauthorized",
             403 => "Forbidden",
             404 => "Not Found",
@@ -54,6 +66,10 @@ defmodule Servy.Handler do
         }[code]
     end
 end
+
+#
+# Test Runs
+#
 
 # Sample req 1
 request = """
@@ -97,6 +113,19 @@ IO.puts response
 # Sample req 4
 request = """
 GET /bears/1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle request
+
+IO.puts response
+
+# Sample req 5
+request = """
+DELETE /bears/1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
