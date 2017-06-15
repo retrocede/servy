@@ -1,10 +1,11 @@
 defmodule Servy.Handler do
 
   @moduledoc "Handles HTTP requests."
-  
+
   @pages_path Path.expand("../../pages", __DIR__)
 
-  require Logger
+  import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
+  import Servy.Parser, only: [parse: 1]
 
   @doc "Transforms the request into a response."
   def handle(request) do
@@ -17,46 +18,6 @@ defmodule Servy.Handler do
     |> track
     |> format_response
   end
-
-  # Parse raw request into a map
-  def parse(request) do
-    # Parse the request string into the map
-    [ method, path, _] =
-      request
-      |> String.split("\n")
-      |> List.first
-      |> String.split(" ")
-
-      %{ method: method, path: path, resp_body: "", status: nil}
-    end
-
-    # Generic logger
-    def log(conv) do
-      Logger.info inspect conv
-      conv
-    end
-    #
-    # Path Rewrites
-    #
-    def rewrite_path(%{ path: "/wildlife" } = conv) do
-      %{ conv | path: "/wildthings" }
-    end
-
-    def rewrite_path(%{ path: path } = conv) do
-      regex = ~r{\/(?<thing>\w+)\?id=(?<id>\d+)}
-      captures = Regex.named_captures(regex, path)
-      rewrite_path_captures(conv, captures)
-    end
-    # catch all, rewrite not needed
-    def rewrite_path(conv), do: conv
-
-    # helper to rewrite thing?id=# routes
-    def rewrite_path_captures(conv, %{"thing" => thing, "id" => id}) do
-      %{ conv | path: "/#{ thing }/#{ id }" }
-    end
-
-    def rewrite_path_captures(conv, nil), do: conv
-
 
     #
     # Routes
@@ -125,14 +86,6 @@ defmodule Servy.Handler do
     # catch all, not worthy of emoji splendor
     def emojify(conv), do: conv
 
-    # Track: Log error routes
-    @doc "Logs 404 requests"
-    def track(%{ status: 404, path: path } = conv) do
-      Logger.error "Error 404: #{ path } not found."
-      conv
-    end
-    # catch all, tracking not needed
-    def track(conv), do: conv
 
     # Format HTTP Response
     def format_response(conv) do
