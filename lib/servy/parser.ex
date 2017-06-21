@@ -10,19 +10,33 @@ defmodule Servy.Parser do
 
     [method, path, _] = String.split(request_line, " ")
 
-    params = parse_params params_string
+    headers = parse_headers(header_lines, %{})
+
+    params = parse_params(headers["Content-Type"], params_string)
+
+    IO.inspect header_lines
 
     %Conv{ 
       method: method, 
       path: path, 
-      params: params
+      params: params,
+      headers: headers
     }
   end
 
+  @doc "Converts headers to a map"
+  defp parse_headers([head | tail], headers) do
+    [key, value] = String.split(head, ": ")
+    headers = Map.put(headers, key, value)
+    parse_headers(tail, headers)
+  end
+  defp parse_headers([], headers), do: headers
+
   @doc "Trims newline and converts query string to map"
-  def parse_params(params_string) do
+  defp parse_params("application/x-www-form-urlencoded", params_string) do
     params_string
       |> String.trim
       |> URI.decode_query
   end
+  defp parse_params(_, _), do: %{}
 end
