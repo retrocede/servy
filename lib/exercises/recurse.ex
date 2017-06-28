@@ -1,4 +1,9 @@
 defmodule Recurse do
+  def my_map([head | tail], func) do
+    [ func.(head) | my_map(tail, func)]
+  end
+  def my_map([], _), do: []
+
   def sum([head | tail], total) do
     sum(tail, total + head)
   end

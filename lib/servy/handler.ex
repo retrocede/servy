@@ -44,8 +44,9 @@ defmodule Servy.Handler do
     params = Map.put(conv.params, "id", id)
     BearController.show(conv, params)
   end
-  def route(%Conv{ method: "DELETE", path: "/bears/" <> _id } = conv) do
-    %{ conv | status: 403, resp_body: "Deleting a bear is forbidden!" }
+  def route(%Conv{ method: "DELETE", path: "/bears/" <> id } = conv) do
+    params = Map.put(conv.params, "id", id)
+    BearController.delete(conv, params)
   end
   def route(%Conv{ method: "POST", path: "/bears"} = conv) do
     BearController.create(conv, conv.params)
