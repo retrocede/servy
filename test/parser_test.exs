@@ -1,6 +1,5 @@
 defmodule ParserTest do
-  use ExUnit.Case
-  doctest Servy.Parser
+  use ExUnit.Case, async: true
 
   alias Servy.Parser
 
