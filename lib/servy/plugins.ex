@@ -8,7 +8,9 @@ defmodule Servy.Plugins do
 
   @doc "Logs 404 requests"
   def track(%Conv{ status: 404, path: path } = conv) do
-    Logger.error "Error 404: #{ path } not found."
+    if Mix.env != :test do
+      Logger.error "Error 404: #{ path } not found."
+    end
     conv
   end
   def track(%Conv{} = conv), do: conv
@@ -34,7 +36,9 @@ defmodule Servy.Plugins do
 
   @doc "Generic logger"
   def log(%Conv{} = conv) do
-    Logger.info inspect conv
+    if Mix.env == :dev do
+      Logger.info inspect conv
+    end
     conv
   end
 end
