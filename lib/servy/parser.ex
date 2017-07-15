@@ -14,9 +14,9 @@ defmodule Servy.Parser do
 
     params = parse_params(headers["Content-Type"], params_string)
 
-    %Conv{ 
-      method: method, 
-      path: path, 
+    %Conv{
+      method: method,
+      path: path,
       params: params,
       headers: headers
     }
@@ -36,16 +36,16 @@ defmodule Servy.Parser do
   into a map with corresponding keys and values.
 
   ## Examples
-      iex> params_string = "name=Baloo&type=Brown"
-      iex> Servy.Parser.parse_params("application/x-www-form-urlencoded", params_string)
-      %{"name" => "Baloo", "type" => "Brown"}
-      iex> Servy.Parser.parse_params("multipart/forn-data", params_string)
-      %{}
+  iex> params_string = "name=Baloo&type=Brown"
+  iex> Servy.Parser.parse_params("application/x-www-form-urlencoded", params_string)
+  %{"name" => "Baloo", "type" => "Brown"}
+  iex> Servy.Parser.parse_params("multipart/forn-data", params_string)
+  %{}
   """
   def parse_params("application/x-www-form-urlencoded", params_string) do
     params_string
-      |> String.trim
-      |> URI.decode_query
+    |> String.trim
+    |> URI.decode_query
   end
   def parse_params(_, _), do: %{}
 
